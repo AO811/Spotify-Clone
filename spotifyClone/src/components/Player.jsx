@@ -20,12 +20,22 @@ const Player = () => {
     toggleShuffle,
     loop,
     toggleLoop,
+    isMuted,
+    toggleMute,
   } = useContext(PlayerContext);
+
+  // Get volume icon based on volume level
+  const getVolumeIcon = () => {
+    if (isMuted || volume === 0) {
+      return assets.volume_icon; // You can use a muted icon if available
+    }
+    return assets. volume_icon;
+  };
 
   return (
     <div className="h-[10%] bg-black flex justify-between items-center text-white px-4">
       <div className="hidden lg:flex items-center gap-4">
-        <img className="w-12" src={track.image} alt="" />
+        <img className="w-12" src={track. image} alt="" />
         <div>
           <p>{track.name}</p>
           <p>{track.desc. slice(0, 12)}</p>
@@ -47,7 +57,6 @@ const Player = () => {
               alt="Shuffle"
               style={isShuffle ? { filter:  "brightness(0) saturate(100%) invert(74%) sepia(79%) saturate(491%) hue-rotate(85deg) brightness(98%) contrast(87%)" } : {}}
             />
-            {/* Green dot indicator when shuffle is active */}
             {isShuffle && (
               <span className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-green-500 rounded-full"></span>
             )}
@@ -57,13 +66,15 @@ const Player = () => {
             className="w-4 cursor-pointer"
             src={assets. prev_icon}
             alt="Previous"
+            title="Previous (←)"
           />
           {playStatus ? (
             <img
               onClick={pause}
               className="w-4 cursor-pointer"
-              src={assets. pause_icon}
+              src={assets.pause_icon}
               alt="Pause"
+              title="Pause (Space)"
             />
           ) : (
             <img
@@ -71,6 +82,7 @@ const Player = () => {
               className="w-4 cursor-pointer"
               src={assets.play_icon}
               alt="Play"
+              title="Play (Space)"
             />
           )}
           <img
@@ -78,6 +90,7 @@ const Player = () => {
             className="w-4 cursor-pointer"
             src={assets.next_icon}
             alt="Next"
+            title="Next (→)"
           />
           {/* Loop Button */}
           <div
@@ -97,15 +110,13 @@ const Player = () => {
               }`}
               src={assets.loop_icon}
               alt="Loop"
-              style={loop !== "none" ?  { filter: "brightness(0) saturate(100%) invert(74%) sepia(79%) saturate(491%) hue-rotate(85deg) brightness(98%) contrast(87%)" } : {}}
+              style={loop !== "none" ? { filter: "brightness(0) saturate(100%) invert(74%) sepia(79%) saturate(491%) hue-rotate(85deg) brightness(98%) contrast(87%)" } : {}}
             />
-            {/* "1" inside the loop icon for loop one mode */}
             {loop === "one" && (
-              <span className="absolute text-[7px] font-bold text-green-500 top-2/5 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              <span className="absolute text-[7px] font-bold text-green-500 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 1
               </span>
             )}
-            {/* Green dot indicator when loop is active */}
             {loop !== "none" && (
               <span className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-green-500 rounded-full"></span>
             )}
@@ -113,8 +124,8 @@ const Player = () => {
         </div>
         <div className="flex items-center gap-5">
           <p>
-            {time. currentTime.minute}:
-            {time.currentTime.second. toString().padStart(2, "0")}
+            {time.currentTime.minute}: 
+            {time.currentTime. second.toString().padStart(2, "0")}
           </p>
           <div
             onClick={seekSong}
@@ -127,17 +138,34 @@ const Player = () => {
             />
           </div>
           <p>
-            {time.totalTime. minute}:
-            {time.totalTime.second.toString().padStart(2, "0")}
+            {time. totalTime.minute}:
+            {time.totalTime.second. toString().padStart(2, "0")}
           </p>
         </div>
       </div>
       <div className="hidden lg:flex items-center gap-2 opacity-75">
         <img className="w-4 cursor-pointer" src={assets.plays_icon} alt="" />
-        <img className="w-4 cursor-pointer" src={assets.mic_icon} alt="" />
-        <img className="w-4 cursor-pointer" src={assets.queue_icon} alt="" />
-        <img className="w-4 cursor-pointer" src={assets.speaker_icon} alt="" />
-        <img className="w-4 cursor-pointer" src={assets. volume_icon} alt="" />
+        <img className="w-4 cursor-pointer" src={assets. mic_icon} alt="" />
+        <img className="w-4 cursor-pointer" src={assets. queue_icon} alt="" />
+        <img className="w-4 cursor-pointer" src={assets. speaker_icon} alt="" />
+        {/* Mute/Volume Button */}
+        <div
+          onClick={toggleMute}
+          className="relative cursor-pointer"
+          title={isMuted ?  "Unmute (M)" : "Mute (M)"}
+        >
+          <img
+            className={`w-4 transition-all duration-200 ${
+              isMuted ? "opacity-50" : "opacity-100"
+            }`}
+            src={getVolumeIcon()}
+            alt="Volume"
+          />
+          {/* Strike-through line when muted */}
+          {isMuted && (
+            <div className="absolute top-1/2 left-0 w-full h-0.5 bg-red-500 transform -rotate-45 -translate-y-1/2"></div>
+          )}
+        </div>
         {/* Volume Slider */}
         <input
           type="range"
@@ -146,14 +174,14 @@ const Player = () => {
           value={volume * 100}
           onChange={changeVolume}
           className="w-20 h-1 rounded cursor-pointer accent-green-500"
-          title={`Volume: ${Math.round(volume * 100)}%`}
+          title={`Volume: ${Math.round(volume * 100)}% (↑↓)`}
         />
         <img
           className="w-4 cursor-pointer"
           src={assets.mini_player_icon}
           alt=""
         />
-        <img className="w-4 cursor-pointer" src={assets. zoom_icon} alt="" />
+        <img className="w-4 cursor-pointer" src={assets.zoom_icon} alt="" />
       </div>
     </div>
   );

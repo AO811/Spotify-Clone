@@ -1,4 +1,4 @@
-import { useRef, useState, createContext, useEffect } from "react";
+import { useRef, useState, createContext, useEffect, useCallback } from "react";
 import { songsData } from "../assets/assets";
 
 export const PlayerContext = createContext();
@@ -16,37 +16,37 @@ const PlayerContextProvider = (props) => {
       minute:  0,
     },
     totalTime: {
-      second: 0,
+      second:  0,
       minute: 0,
     },
   });
 
   const [shouldAutoPlay, setShouldAutoPlay] = useState(false);
-
-  // New states for Volume, Shuffle, and Loop
-  const [volume, setVolume] = useState(1); // 0 to 1
+  const [volume, setVolume] = useState(1);
   const [isShuffle, setIsShuffle] = useState(false);
-  const [loop, setLoop] = useState("none"); // "none", "all", "one"
+  const [loop, setLoop] = useState("none");
 
-  const play = () => {
+  // New states for mute functionality
+  const [isMuted, setIsMuted] = useState(false);
+  const [previousVolume, setPreviousVolume] = useState(1);
+
+  const play = useCallback(() => {
     audioRef.current.play();
     setPlayStatus(true);
-  };
+  }, []);
 
-  const pause = () => {
-    audioRef.current. pause();
+  const pause = useCallback(() => {
+    audioRef.current.pause();
     setPlayStatus(false);
-  };
+  }, []);
 
   const playWithId = (id) => {
     setTrack(songsData[id]);
     setShouldAutoPlay(true);
   };
 
-  // Get next track index based on shuffle mode
-  const getNextTrackIndex = () => {
+  const getNextTrackIndex = useCallback(() => {
     if (isShuffle) {
-      // Get random index excluding current track
       let randomIndex;
       do {
         randomIndex = Math.floor(Math.random() * songsData.length);
@@ -54,31 +54,30 @@ const PlayerContextProvider = (props) => {
       return randomIndex;
     }
     return track.id < songsData.length - 1 ? track.id + 1 : 0;
-  };
+  }, [isShuffle, track. id]);
 
-  // Get previous track index based on shuffle mode
-  const getPrevTrackIndex = () => {
+  const getPrevTrackIndex = useCallback(() => {
     if (isShuffle) {
       let randomIndex;
       do {
-        randomIndex = Math.floor(Math.random() * songsData.length);
+        randomIndex = Math.floor(Math. random() * songsData.length);
       } while (randomIndex === track.id && songsData.length > 1);
       return randomIndex;
     }
-    return track.id > 0 ? track.id - 1 : songsData. length - 1;
-  };
+    return track.id > 0 ? track.id - 1 : songsData.length - 1;
+  }, [isShuffle, track.id]);
 
-  const previous = () => {
+  const previous = useCallback(() => {
     const prevIndex = getPrevTrackIndex();
     setTrack(songsData[prevIndex]);
     setShouldAutoPlay(true);
-  };
+  }, [getPrevTrackIndex]);
 
-  const next = () => {
+  const next = useCallback(() => {
     const nextIndex = getNextTrackIndex();
     setTrack(songsData[nextIndex]);
     setShouldAutoPlay(true);
-  };
+  }, [getNextTrackIndex]);
 
   const seekSong = (e) => {
     audioRef.current.currentTime =
@@ -86,19 +85,36 @@ const PlayerContextProvider = (props) => {
       audioRef.current.duration;
   };
 
-  // Volume control function
   const changeVolume = (e) => {
     const newVolume = e.target.value / 100;
     setVolume(newVolume);
     audioRef.current.volume = newVolume;
+    // If user adjusts volume, unmute
+    if (newVolume > 0) {
+      setIsMuted(false);
+    }
   };
 
-  // Toggle shuffle mode
+  // Toggle mute function
+  const toggleMute = useCallback(() => {
+    if (isMuted) {
+      // Unmute:  restore previous volume
+      setVolume(previousVolume);
+      audioRef.current.volume = previousVolume;
+      setIsMuted(false);
+    } else {
+      // Mute: save current volume and set to 0
+      setPreviousVolume(volume);
+      setVolume(0);
+      audioRef.current.volume = 0;
+      setIsMuted(true);
+    }
+  }, [isMuted, volume, previousVolume]);
+
   const toggleShuffle = () => {
     setIsShuffle((prev) => !prev);
   };
 
-  // Cycle through loop modes:  none -> all -> one -> none
   const toggleLoop = () => {
     setLoop((prev) => {
       if (prev === "none") return "all";
@@ -107,9 +123,18 @@ const PlayerContextProvider = (props) => {
     });
   };
 
+  // Toggle play/pause function for keyboard shortcut
+  const togglePlayPause = useCallback(() => {
+    if (playStatus) {
+      pause();
+    } else {
+      play();
+    }
+  }, [playStatus, play, pause]);
+
   useEffect(() => {
     if (shouldAutoPlay && audioRef.current) {
-      audioRef.current. play();
+      audioRef.current.play();
       setPlayStatus(true);
       setShouldAutoPlay(false);
     }
@@ -123,8 +148,8 @@ const PlayerContextProvider = (props) => {
         seekBar.current.style.width =
           Math.floor((audio.currentTime / audio. duration) * 100) + "%";
         setTime({
-          currentTime:  {
-            second: Math.floor(audio.currentTime % 60),
+          currentTime: {
+            second:  Math.floor(audio.currentTime % 60),
             minute: Math.floor(audio.currentTime / 60),
           },
           totalTime: {
@@ -135,17 +160,13 @@ const PlayerContextProvider = (props) => {
       }
     };
 
-    // Handle song ended event for loop functionality
     const handleSongEnd = () => {
       if (loop === "one") {
-        // Repeat current song
         audio.currentTime = 0;
         audio.play();
       } else if (loop === "all") {
-        // Play next song (will loop back to first song)
         next();
       } else {
-        // No loop - play next if available, otherwise stop
         if (track.id < songsData.length - 1) {
           next();
         } else {
@@ -169,20 +190,71 @@ const PlayerContextProvider = (props) => {
         audio.removeEventListener("ended", handleSongEnd);
       }
     };
-  }, [loop, track. id]);
+  }, [loop, track. id, next]);
 
   useEffect(() => {
     if (seekBar.current) {
-      seekBar.current.style. width = "0%";
+      seekBar.current.style.width = "0%";
     }
   }, [track]);
 
-  // Set initial volume
   useEffect(() => {
     if (audioRef.current) {
-      audioRef.current. volume = volume;
+      audioRef.current.volume = volume;
     }
   }, []);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Ignore if user is typing in an input field
+      if (e. target.tagName === "INPUT" || e.target. tagName === "TEXTAREA") {
+        return;
+      }
+
+      switch (e.code) {
+        case "Space": 
+          e.preventDefault(); // Prevent page scroll
+          togglePlayPause();
+          break;
+        case "ArrowRight": 
+          e.preventDefault();
+          next();
+          break;
+        case "ArrowLeft": 
+          e.preventDefault();
+          previous();
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          // Increase volume by 10%
+          const newVolumeUp = Math.min(volume + 0.1, 1);
+          setVolume(newVolumeUp);
+          audioRef.current.volume = newVolumeUp;
+          if (isMuted) setIsMuted(false);
+          break;
+        case "ArrowDown":
+          e.preventDefault();
+          // Decrease volume by 10%
+          const newVolumeDown = Math.max(volume - 0.1, 0);
+          setVolume(newVolumeDown);
+          audioRef.current.volume = newVolumeDown;
+          break;
+        case "KeyM":
+          e.preventDefault();
+          toggleMute();
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [togglePlayPause, next, previous, volume, isMuted, toggleMute]);
 
   const ContextValue = {
     audioRef,
@@ -200,13 +272,15 @@ const PlayerContextProvider = (props) => {
     previous,
     next,
     seekSong,
-    // New exports
     volume,
     changeVolume,
     isShuffle,
     toggleShuffle,
     loop,
     toggleLoop,
+    // New exports
+    isMuted,
+    toggleMute,
   };
 
   return (
