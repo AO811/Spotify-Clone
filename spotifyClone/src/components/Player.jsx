@@ -35,10 +35,16 @@ const Player = () => {
       }`}
     >
       <div className="hidden lg:flex items-center gap-4">
-        <img className="w-12 rounded" src={track.image} alt="" />
+        <img 
+          className="w-12 rounded cursor-pointer" 
+          src={track.image} 
+          alt="" 
+          onClick={toggleFullScreen}
+          title="Open Full Screen (F)"
+        />
         <div>
           <p className="font-medium">{track.name}</p>
-          <p className={`text-sm ${isDark ? "text-gray-400" :  "text-gray-500"}`}>
+          <p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}>
             {track.desc. slice(0, 12)}
           </p>
         </div>
@@ -49,21 +55,21 @@ const Player = () => {
           <div
             onClick={toggleShuffle}
             className="relative cursor-pointer"
-            title={isShuffle ? "Shuffle: On" :  "Shuffle: Off"}
+            title={isShuffle ? "Shuffle:  On" : "Shuffle: Off"}
           >
             <img
               className={`w-4 transition-all duration-200 ${
-                isShuffle ?  "opacity-100" : "opacity-50 hover:opacity-100"
+                isShuffle ? "opacity-100" : "opacity-50 hover:opacity-100"
               }`}
               src={assets.shuffle_icon}
               alt="Shuffle"
               style={
                 isShuffle
                   ? {
-                      filter:
+                      filter: 
                         "brightness(0) saturate(100%) invert(74%) sepia(79%) saturate(491%) hue-rotate(85deg) brightness(98%) contrast(87%)",
                     }
-                  :  isDark
+                  : isDark
                   ? {}
                   : { filter: "invert(1)" }
               }
@@ -78,16 +84,16 @@ const Player = () => {
             src={assets.prev_icon}
             alt="Previous"
             title="Previous (←)"
-            style={isDark ?  {} : { filter: "invert(1)" }}
+            style={isDark ? {} : { filter: "invert(1)" }}
           />
           {playStatus ?  (
             <img
               onClick={pause}
               className="w-4 cursor-pointer"
-              src={assets. pause_icon}
+              src={assets.pause_icon}
               alt="Pause"
               title="Pause (Space)"
-              style={isDark ? {} : { filter:  "invert(1)" }}
+              style={isDark ? {} : { filter: "invert(1)" }}
             />
           ) : (
             <img
@@ -96,7 +102,7 @@ const Player = () => {
               src={assets.play_icon}
               alt="Play"
               title="Play (Space)"
-              style={isDark ? {} : { filter: "invert(1)" }}
+              style={isDark ? {} :  { filter: "invert(1)" }}
             />
           )}
           <img
@@ -105,7 +111,7 @@ const Player = () => {
             src={assets.next_icon}
             alt="Next"
             title="Next (→)"
-            style={isDark ? {} : { filter:  "invert(1)" }}
+            style={isDark ? {} : { filter: "invert(1)" }}
           />
           {/* Loop Button */}
           <div
@@ -113,10 +119,10 @@ const Player = () => {
             className="relative cursor-pointer flex items-center justify-center"
             title={
               loop === "none"
-                ? "Loop:  Off"
+                ? "Loop: Off"
                 : loop === "all"
-                ? "Loop:  All"
-                : "Loop:  One"
+                ? "Loop: All"
+                : "Loop: One"
             }
           >
             <img
@@ -133,7 +139,7 @@ const Player = () => {
                     }
                   : isDark
                   ? {}
-                  :  { filter: "invert(1)" }
+                  : { filter: "invert(1)" }
               }
             />
             {loop === "one" && (
@@ -164,8 +170,8 @@ const Player = () => {
             />
           </div>
           <p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}>
-            {time.totalTime.minute}:
-            {time.totalTime.second.toString().padStart(2, "0")}
+            {time.totalTime.minute}: 
+            {time.totalTime. second.toString().padStart(2, "0")}
           </p>
         </div>
       </div>
@@ -188,7 +194,7 @@ const Player = () => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-. 707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-. 707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-. 707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
               />
             </svg>
           ) : (
@@ -208,9 +214,9 @@ const Player = () => {
             </svg>
           )}
         </div>
-        <img className="w-4 cursor-pointer" src={assets.plays_icon} alt="" style={isDark ? {} : { filter:  "invert(1)" }} />
-        <img className="w-4 cursor-pointer" src={assets. mic_icon} alt="" style={isDark ? {} : { filter: "invert(1)" }} />
-        <img className="w-4 cursor-pointer" src={assets.queue_icon} alt="" style={isDark ? {} : { filter: "invert(1)" }} />
+        <img className="w-4 cursor-pointer" src={assets.plays_icon} alt="" style={isDark ? {} : { filter: "invert(1)" }} />
+        <img className="w-4 cursor-pointer" src={assets.mic_icon} alt="" style={isDark ? {} : { filter: "invert(1)" }} />
+        <img className="w-4 cursor-pointer" src={assets. queue_icon} alt="" style={isDark ? {} : { filter: "invert(1)" }} />
         <img className="w-4 cursor-pointer" src={assets. speaker_icon} alt="" style={isDark ? {} : { filter:  "invert(1)" }} />
         {/* Mute/Volume Button */}
         <div
@@ -243,7 +249,7 @@ const Player = () => {
         {/* Full Screen Button */}
         <div
           onClick={toggleFullScreen}
-          className="cursor-pointer p-1 rounded-full hover: bg-gray-700/30 transition-colors"
+          className="cursor-pointer p-1 rounded-full hover:bg-gray-700/30 transition-colors"
           title="Full Screen (F)"
         >
           <svg

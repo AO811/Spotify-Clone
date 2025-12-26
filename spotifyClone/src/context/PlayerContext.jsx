@@ -25,10 +25,9 @@ const PlayerContextProvider = (props) => {
   const [volume, setVolume] = useState(1);
   const [isShuffle, setIsShuffle] = useState(false);
   const [loop, setLoop] = useState("none");
-
-  // New states for mute functionality
   const [isMuted, setIsMuted] = useState(false);
   const [previousVolume, setPreviousVolume] = useState(1);
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
   const play = useCallback(() => {
     audioRef.current.play();
@@ -89,21 +88,17 @@ const PlayerContextProvider = (props) => {
     const newVolume = e.target.value / 100;
     setVolume(newVolume);
     audioRef.current.volume = newVolume;
-    // If user adjusts volume, unmute
     if (newVolume > 0) {
       setIsMuted(false);
     }
   };
 
-  // Toggle mute function
   const toggleMute = useCallback(() => {
     if (isMuted) {
-      // Unmute:  restore previous volume
       setVolume(previousVolume);
       audioRef.current.volume = previousVolume;
       setIsMuted(false);
     } else {
-      // Mute: save current volume and set to 0
       setPreviousVolume(volume);
       setVolume(0);
       audioRef.current.volume = 0;
@@ -123,7 +118,6 @@ const PlayerContextProvider = (props) => {
     });
   };
 
-  // Toggle play/pause function for keyboard shortcut
   const togglePlayPause = useCallback(() => {
     if (playStatus) {
       pause();
@@ -131,6 +125,10 @@ const PlayerContextProvider = (props) => {
       play();
     }
   }, [playStatus, play, pause]);
+
+  const toggleFullScreen = useCallback(() => {
+    setIsFullScreen((prev) => !prev);
+  }, []);
 
   useEffect(() => {
     if (shouldAutoPlay && audioRef.current) {
@@ -144,12 +142,18 @@ const PlayerContextProvider = (props) => {
     const audio = audioRef.current;
 
     const handleTimeUpdate = () => {
-      if (audio && seekBar.current && audio.duration && ! isNaN(audio.duration) && audio.duration > 0) {
+      if (
+        audio &&
+        seekBar.current &&
+        audio.duration &&
+        ! isNaN(audio.duration) &&
+        audio.duration > 0
+      ) {
         seekBar.current.style.width =
           Math.floor((audio.currentTime / audio. duration) * 100) + "%";
         setTime({
-          currentTime: {
-            second:  Math.floor(audio.currentTime % 60),
+          currentTime:  {
+            second: Math.floor(audio.currentTime % 60),
             minute: Math.floor(audio.currentTime / 60),
           },
           totalTime: {
@@ -200,24 +204,23 @@ const PlayerContextProvider = (props) => {
 
   useEffect(() => {
     if (audioRef.current) {
-      audioRef.current.volume = volume;
+      audioRef.current. volume = volume;
     }
   }, []);
 
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Ignore if user is typing in an input field
-      if (e. target.tagName === "INPUT" || e.target. tagName === "TEXTAREA") {
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
         return;
       }
 
       switch (e.code) {
         case "Space": 
-          e.preventDefault(); // Prevent page scroll
+          e.preventDefault();
           togglePlayPause();
           break;
-        case "ArrowRight": 
+        case "ArrowRight":
           e.preventDefault();
           next();
           break;
@@ -227,7 +230,6 @@ const PlayerContextProvider = (props) => {
           break;
         case "ArrowUp":
           e.preventDefault();
-          // Increase volume by 10%
           const newVolumeUp = Math.min(volume + 0.1, 1);
           setVolume(newVolumeUp);
           audioRef.current.volume = newVolumeUp;
@@ -235,26 +237,35 @@ const PlayerContextProvider = (props) => {
           break;
         case "ArrowDown":
           e.preventDefault();
-          // Decrease volume by 10%
           const newVolumeDown = Math.max(volume - 0.1, 0);
           setVolume(newVolumeDown);
-          audioRef.current.volume = newVolumeDown;
+          audioRef. current.volume = newVolumeDown;
           break;
         case "KeyM":
           e.preventDefault();
           toggleMute();
+          break;
+        case "KeyF":
+          e.preventDefault();
+          toggleFullScreen();
+          break;
+        case "Escape":
+          if (isFullScreen) {
+            e.preventDefault();
+            setIsFullScreen(false);
+          }
           break;
         default:
           break;
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
+    window. addEventListener("keydown", handleKeyDown);
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [togglePlayPause, next, previous, volume, isMuted, toggleMute]);
+  }, [togglePlayPause, next, previous, volume, isMuted, toggleMute, toggleFullScreen, isFullScreen]);
 
   const ContextValue = {
     audioRef,
@@ -278,9 +289,10 @@ const PlayerContextProvider = (props) => {
     toggleShuffle,
     loop,
     toggleLoop,
-    // New exports
     isMuted,
     toggleMute,
+    isFullScreen,
+    toggleFullScreen,
   };
 
   return (
