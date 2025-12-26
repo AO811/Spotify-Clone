@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { assets } from "../assets/assets.js";
 import { PlayerContext } from "../context/PlayerContext.jsx";
-const player = () => {
+const Player = () => {
 
   const { track, seekBg, seekBar, playStatus, play, pause, time, previous, next, seekSong } = useContext(PlayerContext);
 
@@ -27,7 +27,7 @@ const player = () => {
         <div className="flex items-center gap-5">
           <p>{time.currentTime.minute}:{time.currentTime.second}</p>
           <div onClick={seekSong} ref={seekBg} className="w-[60vw] max-w-[500px] bg-gray-300 rounded-full cursor-pointer">
-            <hr  ref={seekBar} className="h-1 border-none w-20 bg-green rounded-full" />
+            <hr  ref={seekBar} className="h-1 border-none w-20 bg-green-500 rounded-full" />
           </div>
           <p>{time.totalTime.minute}:{time.totalTime.second}</p>
         </div>
@@ -41,7 +41,7 @@ const player = () => {
         <div className="w-20 bg-slate-50 h-1 rounded"></div>
         <img
           className="w-4 cursor-pointer"
-          src={assets.mini_player_icon_icon}
+          src={assets.mini_player_icon}
           alt=""
         />
         <img className="w-4 cursor-pointer" src={assets.zoom_icon} alt="" />
@@ -50,4 +50,4 @@ const player = () => {
   );
 };
 
-export default player;
+export default Player;

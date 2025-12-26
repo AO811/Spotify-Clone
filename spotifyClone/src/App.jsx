@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
-import Sidebar from "./components/sidebar.jsx";
-import Player from "./components/player.jsx";
-import Display from "./components/display.jsx";
+import Sidebar from "./components/Sidebar.jsx";
+import Player from "./components/Player.jsx";
+import Display from "./components/Display.jsx";
 import { PlayerContext } from "./context/PlayerContext.jsx";
 const App = () => {
   const {audioRef, track} = useContext(PlayerContext);

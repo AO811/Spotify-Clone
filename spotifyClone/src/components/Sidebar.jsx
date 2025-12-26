@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { assets } from "../assets/assets";
-const sidebar = () => {
+const Sidebar = () => {
 
   const navigate = useNavigate();
 
@@ -43,4 +43,4 @@ const sidebar = () => {
   );
 };
 
-export default sidebar;
+export default Sidebar;
